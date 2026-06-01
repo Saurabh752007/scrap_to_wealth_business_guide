@@ -68,15 +68,15 @@ export default function AICopilot() {
         throw new Error("Backend returned an invalid response. Check deployment configuration.");
       }
 
-      if (!response.ok) {
+      if (!response.ok || !parsedData.success) {
         throw new Error(parsedData?.error || `API responded with status: ${response.status}`);
       }
 
       if (engineType === 'ideation') {
-        setIdeaResult(parsedData);
-        setCurrentTargetProduct(parsedData.productName || 'Upcycled Creation');
+        setIdeaResult(parsedData.data);
+        setCurrentTargetProduct(parsedData.data.productName || 'Upcycled Creation');
       } else {
-        setPitchResult(parsedData);
+        setPitchResult(parsedData.data);
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to communicate with AI engines. Please check your network and try again.");

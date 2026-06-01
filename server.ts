@@ -78,7 +78,7 @@ You must return only a valid, single structured JSON object conforming strictly 
         required: ["tagline", "elevatorPitch", "swot"],
       };
     } else {
-      return res.status(400).json({ error: "Invalid engineType provided." });
+      return res.status(400).json({ success: false, error: "Invalid engineType provided." });
     }
 
     let response;
@@ -106,28 +106,34 @@ You must return only a valid, single structured JSON object conforming strictly 
             console.log("API Quota exceeded, returning simulated response.");
             if (engineType === "ideation") {
               return res.json({
-                productName: "Sustainable Product (Simulated - Quota Exceeded)",
-                difficulty: "Medium",
-                targetMarket: targetMarket,
-                estimatedInitialCost: "₹10,000 - ₹20,000",
-                profitPotential: "High (70%+)",
-                process: [
-                  "API Quota exceeded. This is a simulated fallback response.",
-                  `Collect and sort the ${materialName}.`,
-                  "Process and clean the raw materials.",
-                  "Manufacture the upcycled goods.",
-                  `Distribute to the ${targetMarket} market.`
-                ]
+                success: true,
+                data: {
+                  productName: "Sustainable Product (Simulated - Quota Exceeded)",
+                  difficulty: "Medium",
+                  targetMarket: targetMarket,
+                  estimatedInitialCost: "₹10,000 - ₹20,000",
+                  profitPotential: "High (70%+)",
+                  process: [
+                    "API Quota exceeded. This is a simulated fallback response.",
+                    `Collect and sort the ${materialName}.`,
+                    "Process and clean the raw materials.",
+                    "Manufacture the upcycled goods.",
+                    `Distribute to the ${targetMarket} market.`
+                  ]
+                }
               });
             } else {
               return res.json({
-                tagline: "Value from waste. (Simulated Demo)",
-                elevatorPitch: `We are currently experiencing high API demand and have exceeded our free quota. This is a simulated pitch for ${currentTargetProduct}. We turn ${materialName} into high-value assets for the ${targetMarket} market.`,
-                swot: {
-                  strengths: "Strong eco-friendly branding (Simulated)",
-                  weaknesses: "API rate limits on the free tier (Simulated)",
-                  opportunities: "Massive market for sustainable goods (Simulated)",
-                  threats: "Fluctuating raw material availability (Simulated)"
+                success: true,
+                data: {
+                  tagline: "Value from waste. (Simulated Demo)",
+                  elevatorPitch: `We are currently experiencing high API demand and have exceeded our free quota. This is a simulated pitch for ${currentTargetProduct}. We turn ${materialName} into high-value assets for the ${targetMarket} market.`,
+                  swot: {
+                    strengths: "Strong eco-friendly branding (Simulated)",
+                    weaknesses: "API rate limits on the free tier (Simulated)",
+                    opportunities: "Massive market for sustainable goods (Simulated)",
+                    threats: "Fluctuating raw material availability (Simulated)"
+                  }
                 }
               });
             }
@@ -180,10 +186,10 @@ You must return only a valid, single structured JSON object conforming strictly 
     }
 
     const parsedResult = JSON.parse(cleanedResult);
-    res.json(parsedResult);
+    res.json({ success: true, data: parsedResult });
   } catch (error: any) {
     console.log("Gemini API Error (handled via UI):", error.message);
-    res.status(500).json({ error: error.message || "Failed to process AI request" });
+    res.status(500).json({ success: false, error: error.message || "Failed to process AI request" });
   }
 });
 
