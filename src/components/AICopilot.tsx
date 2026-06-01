@@ -56,32 +56,27 @@ export default function AICopilot() {
         })
       });
 
-      if (!response.ok) {
-        let errorData;
-        try {
-          // Attempt to parse JSON error message from server
-          errorData = await response.json();
-        } catch (jsonErr) {
-          // If the response isn't JSON (e.g. 503 HTML page), throw a generic or text-based error
-          const textData = await response.text();
-          throw new Error(`API responded with status ${response.status}: ${textData.substring(0, 100)}...`);
-        }
-        throw new Error(errorData.error || `API responded with status: ${response.status}`);
+      // Always read as text first to handle cases where backend returns HTML
+      const textData = await response.text();
+      
+      let parsedData;
+      try {
+        parsedData = JSON.parse(textData);
+      } catch (e) {
+        // Automatically detect non-JSON (like HTML)
+        console.error("Invalid JSON received from backend:", textData);
+        throw new Error("Backend returned an invalid response. Check deployment configuration.");
       }
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (e) {
-        const text = await response.text();
-        throw new Error(`Invalid response from server: ${text.substring(0, 100)}...`);
+      if (!response.ok) {
+        throw new Error(parsedData?.error || `API responded with status: ${response.status}`);
       }
 
       if (engineType === 'ideation') {
-        setIdeaResult(data);
-        setCurrentTargetProduct(data.productName || 'Upcycled Creation');
+        setIdeaResult(parsedData);
+        setCurrentTargetProduct(parsedData.productName || 'Upcycled Creation');
       } else {
-        setPitchResult(data);
+        setPitchResult(parsedData);
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to communicate with AI engines. Please check your network and try again.");
