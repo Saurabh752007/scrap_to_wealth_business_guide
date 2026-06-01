@@ -57,11 +57,25 @@ export default function AICopilot() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        let errorData;
+        try {
+          // Attempt to parse JSON error message from server
+          errorData = await response.json();
+        } catch (jsonErr) {
+          // If the response isn't JSON (e.g. 503 HTML page), throw a generic or text-based error
+          const textData = await response.text();
+          throw new Error(`API responded with status ${response.status}: ${textData.substring(0, 100)}...`);
+        }
         throw new Error(errorData.error || `API responded with status: ${response.status}`);
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        const text = await response.text();
+        throw new Error(`Invalid response from server: ${text.substring(0, 100)}...`);
+      }
 
       if (engineType === 'ideation') {
         setIdeaResult(data);

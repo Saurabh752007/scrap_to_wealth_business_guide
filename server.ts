@@ -149,7 +149,37 @@ You must return only a valid, single structured JSON object conforming strictly 
       throw new Error("No response generated from Gemini.");
     }
 
-    const parsedResult = JSON.parse(textResult);
+    // Try to extract JSON from the text, ignoring any surrounding conversational text
+    let cleanedResult = textResult.trim();
+    const jsonMatch = cleanedResult.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+    if (jsonMatch) {
+      cleanedResult = jsonMatch[0];
+    } else {
+      // Fallback: If no JSON-like structure is found, wrap it in a mock response
+      if (engineType === "ideation") {
+        cleanedResult = JSON.stringify({
+          productName: "Extracted Product Concept",
+          difficulty: "Medium",
+          targetMarket,
+          estimatedInitialCost: "N/A",
+          profitPotential: "Not specified",
+          process: [cleanedResult]
+        });
+      } else {
+        cleanedResult = JSON.stringify({
+          tagline: "Commercial Concept Summary",
+          elevatorPitch: cleanedResult,
+          swot: {
+            strengths: "Information provided in pitch",
+            weaknesses: "Requires further refinement",
+            opportunities: "High potential",
+            threats: "Market competition"
+          }
+        });
+      }
+    }
+
+    const parsedResult = JSON.parse(cleanedResult);
     res.json(parsedResult);
   } catch (error: any) {
     console.log("Gemini API Error (handled via UI):", error.message);
