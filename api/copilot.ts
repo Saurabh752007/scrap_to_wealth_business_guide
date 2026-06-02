@@ -1,0 +1,201 @@
+import { GoogleGenAI, Type } from "@google/genai";
+import { VercelRequest, VercelResponse } from "@vercel/node";
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Add CORS headers just in case
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: 'Method Not Allowed' });
+  }
+
+  try {
+    const { engineType, materialName, targetMarket, currentTargetProduct } = req.body || {};
+
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("GEMINI_API_KEY is not set in Vercel Environment Variables.");
+    }
+
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+    let systemInstruction = "";
+    let userQuery = "";
+    let responseSchema: any = null;
+
+    if (engineType === "ideation") {
+      systemInstruction = `You are an expert Circular Economy Business Consultant and Industrial Upcycler.
+Your goal is to propose a profitable, scalable upcycled product concept using a specific waste material.
+You must return only a valid, single structured JSON object conforming strictly to the requested schema.`;
+      
+      userQuery = `Produce an upcycling strategy for: "${materialName}" targeting the "${targetMarket}" market. Ensure steps are detailed, practical, and highly creative.`;
+      
+      responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          productName: { type: Type.STRING },
+          difficulty: { type: Type.STRING },
+          targetMarket: { type: Type.STRING },
+          estimatedInitialCost: { type: Type.STRING },
+          profitPotential: { type: Type.STRING },
+          process: { type: Type.ARRAY, items: { type: Type.STRING } },
+        },
+        required: [
+          "productName",
+          "difficulty",
+          "targetMarket",
+          "estimatedInitialCost",
+          "profitPotential",
+          "process",
+        ],
+      };
+    } else if (engineType === "pitch") {
+      systemInstruction = `You are a brilliant venture builder and sustainability pitch designer.
+Your goal is to take a circular business product and draft an attractive tag line, a professional 60-second elevator pitch targeting partners/investors, and a critical SWOT analysis.
+You must return only a valid, single structured JSON object conforming strictly to the requested schema.`;
+
+      userQuery = `Draft a strategic commercial toolkit for an upcycling business producing: "${currentTargetProduct}" using "${materialName}". Target Demographic is "${targetMarket}". Make it professional and investor-ready.`;
+
+      responseSchema = {
+        type: Type.OBJECT,
+        properties: {
+          tagline: { type: Type.STRING },
+          elevatorPitch: { type: Type.STRING },
+          swot: {
+            type: Type.OBJECT,
+            properties: {
+              strengths: { type: Type.STRING },
+              weaknesses: { type: Type.STRING },
+              opportunities: { type: Type.STRING },
+              threats: { type: Type.STRING },
+            },
+            required: ["strengths", "weaknesses", "opportunities", "threats"],
+          },
+        },
+        required: ["tagline", "elevatorPitch", "swot"],
+      };
+    } else {
+      return res.status(400).json({ success: false, error: "Invalid engineType provided." });
+    }
+
+    let response;
+    let retries = 3;
+    let delay = 5000;
+    const model = "gemini-2.5-flash";
+    
+    while (retries > 0) {
+      try {
+        response = await ai.models.generateContent({
+          model: model,
+          contents: [{ role: "user", parts: [{ text: userQuery }] }],
+          config: {
+            systemInstruction,
+            responseMimeType: "application/json",
+            responseSchema,
+          },
+        });
+        break; // Success
+      } catch (error: any) {
+        retries--;
+        if (retries === 0) {
+          // If we run out of retries and it's a quota/rate-limiting issue, return a mock response
+          if (error.message?.includes('429') || error.message?.includes('quota') || error.message?.includes('503') || error.status === 429 || error.status === 503) {
+            console.log("API Quota exceeded, returning simulated response.");
+            if (engineType === "ideation") {
+              return res.json({
+                success: true,
+                data: {
+                  productName: "Sustainable Product (Simulated - Quota Exceeded)",
+                  difficulty: "Medium",
+                  targetMarket: targetMarket,
+                  estimatedInitialCost: "₹10,000 - ₹20,000",
+                  profitPotential: "High (70%+)",
+                  process: [
+                    "API Quota exceeded. This is a simulated fallback response.",
+                    `Collect and sort the ${materialName}.`,
+                    "Process and clean the raw materials.",
+                    "Manufacture the upcycled goods.",
+                    `Distribute to the ${targetMarket} market.`
+                  ]
+                }
+              });
+            } else {
+              return res.json({
+                success: true,
+                data: {
+                  tagline: "Value from waste. (Simulated Demo)",
+                  elevatorPitch: `We are currently experiencing high API demand and have exceeded our free quota. This is a simulated pitch for ${currentTargetProduct}. We turn ${materialName} into high-value assets for the ${targetMarket} market.`,
+                  swot: {
+                    strengths: "Strong eco-friendly branding (Simulated)",
+                    weaknesses: "API rate limits on the free tier (Simulated)",
+                    opportunities: "Massive market for sustainable goods (Simulated)",
+                    threats: "Fluctuating raw material availability (Simulated)"
+                  }
+                }
+              });
+            }
+          }
+          throw error;
+        }
+        
+        // Try to extract retry time from error message, otherwise use backoff delay
+        const match = error.message?.match(/retry in (\d+(?:\.\d+)?)/i);
+        const waitTime = match ? (Math.ceil(parseFloat(match[1])) * 1000 + 1000) : delay;
+        
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        delay *= 1.5;
+      }
+    }
+
+    const textResult = response?.text;
+    if (!textResult) {
+      throw new Error("No response generated from Gemini.");
+    }
+
+    // Try to extract JSON from the text, ignoring any surrounding conversational text
+    let cleanedResult = textResult.trim();
+    const jsonMatch = cleanedResult.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+    if (jsonMatch) {
+      cleanedResult = jsonMatch[0];
+    } else {
+      // Fallback: If no JSON-like structure is found, wrap it in a mock response
+      if (engineType === "ideation") {
+        cleanedResult = JSON.stringify({
+          productName: "Extracted Product Concept",
+          difficulty: "Medium",
+          targetMarket,
+          estimatedInitialCost: "N/A",
+          profitPotential: "Not specified",
+          process: [cleanedResult]
+        });
+      } else {
+        cleanedResult = JSON.stringify({
+          tagline: "Commercial Concept Summary",
+          elevatorPitch: cleanedResult,
+          swot: {
+            strengths: "Information provided in pitch",
+            weaknesses: "Requires further refinement",
+            opportunities: "High potential",
+            threats: "Market competition"
+          }
+        });
+      }
+    }
+
+    const parsedResult = JSON.parse(cleanedResult);
+    res.json({ success: true, data: parsedResult });
+  } catch (error: any) {
+    console.error("Gemini API Error:", error.message);
+    res.status(500).json({ success: false, error: error.message || "Failed to process AI request" });
+  }
+}
