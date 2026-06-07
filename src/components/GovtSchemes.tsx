@@ -43,9 +43,22 @@ export default function GovtSchemes() {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-6 md:p-10 mb-8">
-      <h2 className="text-2xl font-bold text-stone-800 mb-4">
-        Leveraging Government Schemes (India)
-      </h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <h2 className="text-2xl font-bold text-stone-800">
+          Leveraging Government Schemes (India)
+        </h2>
+        <a 
+          href="https://www.myscheme.gov.in" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition-colors border border-emerald-200 text-sm whitespace-nowrap print:hidden"
+        >
+          <span>Explore myScheme.gov.in</span>
+          <svg className="w-4 h-4 ml-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+      </div>
       <p className="text-stone-600 mb-8">
         The circular economy is heavily incentivized by the Indian government. This section details the most relevant financial aids, subsidies, and schemes you can leverage to fund your platform's technology, logistics, and initial operations. Click on each scheme to reveal eligibility and benefits.
       </p>

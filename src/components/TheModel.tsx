@@ -1,8 +1,7 @@
-import React, { useState, useRef } from 'react';
-import { Factory, Recycle, ShoppingCart, Check, Info } from 'lucide-react';
+import React, { useState } from 'react';
+import { Factory, Recycle, ShoppingCart, Check, Info, TrendingUp, Leaf, Users, Layers } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
-import { useReactToPrint } from 'react-to-print';
 
 const Tooltip = ({ children, content }: { children: React.ReactNode, content: React.ReactNode }) => (
   <span className="group relative inline-flex items-center cursor-help">
@@ -64,28 +63,52 @@ export default function TheModel() {
 
   const activeData = modelData[activeNode];
 
-const contentRef = useRef<HTMLDivElement>(null);
-  const reactToPrintFn = useReactToPrint({ contentRef });
-
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-6 md:p-10 relative">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-        <h2 className="text-2xl font-bold text-stone-800">
+    <div className="space-y-8">
+      {/* Executive Summary Metrics Card */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl flex flex-col justify-center">
+          <div className="flex items-center mb-1">
+            <Leaf className="w-4 h-4 text-emerald-600 mr-2" />
+            <span className="text-[10px] uppercase font-bold text-emerald-800 tracking-wider">Projected Diversion</span>
+          </div>
+          <p className="text-2xl font-bold text-emerald-600 tracking-tight">1,200 <span className="text-sm font-normal text-emerald-700 -ml-1">Tons/yr</span></p>
+        </div>
+        
+        <div className="bg-stone-50 border border-stone-200 p-4 rounded-xl flex flex-col justify-center">
+          <div className="flex items-center mb-1">
+            <TrendingUp className="w-4 h-4 text-stone-500 mr-2" />
+            <span className="text-[10px] uppercase font-bold text-stone-600 tracking-wider">Total Est. Profit</span>
+          </div>
+          <p className="text-2xl font-bold text-stone-800 tracking-tight">₹15.5 <span className="text-sm font-normal text-stone-500 -ml-1">Lakhs/yr</span></p>
+        </div>
+
+        <div className="bg-stone-50 border border-stone-200 p-4 rounded-xl flex flex-col justify-center">
+          <div className="flex items-center mb-1">
+            <Users className="w-4 h-4 text-stone-500 mr-2" />
+            <span className="text-[10px] uppercase font-bold text-stone-600 tracking-wider">Active Upcyclers</span>
+          </div>
+          <p className="text-2xl font-bold text-stone-800 tracking-tight">45+</p>
+        </div>
+
+        <div className="bg-stone-50 border border-stone-200 p-4 rounded-xl flex flex-col justify-center">
+          <div className="flex items-center mb-1">
+            <Layers className="w-4 h-4 text-stone-500 mr-2" />
+            <span className="text-[10px] uppercase font-bold text-stone-600 tracking-wider">Core Supply Chain</span>
+          </div>
+          <p className="text-2xl font-bold text-stone-800 tracking-tight">3 <span className="text-sm font-normal text-stone-500 -ml-1">Nodes</span></p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-stone-100 p-6 md:p-10">
+        <h2 className="text-2xl font-bold text-stone-800 mb-4">
           The 3-Sided Marketplace Ecosystem
         </h2>
-        <button
-          onClick={() => reactToPrintFn()}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg flex items-center space-x-2 transition-colors text-sm shadow-sm print:hidden"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          <span>Download Summary</span>
-        </button>
-      </div>
       <p className="text-stone-600 mb-8">
         This section breaks down your core operational flow. As the middleman, your platform connects three distinct user groups. Click on each ecosystem node below to understand their role, what they bring to the platform, and how you provide value to them. Hover over <span className="text-emerald-500 font-medium decoration-dashed underline underline-offset-4 decoration-emerald-500/40">highlighted terms</span> to learn more.
       </p>
 
-      <div ref={contentRef} className="space-y-8 print:px-8 print:pt-6">
+      <div className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
         <NodeCard
           id="supplier"
@@ -143,6 +166,7 @@ const contentRef = useRef<HTMLDivElement>(null);
         </AnimatePresence>
       </div>
       </div>
+    </div>
     </div>
   );
 }
