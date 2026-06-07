@@ -23,11 +23,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { engineType, materialName, targetMarket, currentTargetProduct } = req.body || {};
 
-    if (!process.env.GEMINI_API_KEY) {
+    const apiKey = process.env.GEMINI_API_KEY || process.env.G_API_KEY || process.env.API_KEY;
+
+    if (!apiKey) {
       throw new Error("GEMINI_API_KEY is not set in Vercel Environment Variables.");
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
 
     let systemInstruction = "";
     let userQuery = "";
