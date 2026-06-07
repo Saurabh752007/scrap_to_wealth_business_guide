@@ -3,7 +3,7 @@
 @media print {
   @page {
     size: A4;
-    margin: 15mm;
+    margin: 20mm 25mm;
   }
   
   /* General print improvements */
@@ -30,7 +30,7 @@
     min-width: 100% !important;
     max-width: 100% !important;
     flex: 0 0 100% !important;
-    padding: 0 !important;
+    padding: 15mm 20mm !important;
     margin: 0 auto !important;
     border: none !important;
     box-shadow: none !important;

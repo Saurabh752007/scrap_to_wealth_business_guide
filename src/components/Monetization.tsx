@@ -30,7 +30,12 @@ const faqs = [
   }
 ];
 
-function FAQItem({ question, answer }: { question: string, answer: string }) {
+interface FAQItemProps {
+  question: string;
+  answer: string;
+}
+
+const FAQItem: React.FC<FAQItemProps> = ({ question, answer }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
