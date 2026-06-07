@@ -1,10 +1,17 @@
 @import "tailwindcss";
 
 @media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  
   /* General print improvements */
   body {
     background-color: white !important;
     color: black !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   
   /* Hide the configuration left column and general UI elements */
@@ -24,10 +31,16 @@
     max-width: 100% !important;
     flex: 0 0 100% !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     border: none !important;
     box-shadow: none !important;
     overflow: visible !important;
+  }
+  
+  /* Print structure and flow */
+  .print\:break-inside-avoid {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
   
   /* Reset background colors on inner elements to ensure readability */
@@ -44,9 +57,10 @@
   .bg-teal-950,
   .bg-stone-950\/30,
   .bg-emerald-950\/30 {
-    background-color: white !important;
-    color: black !important;
-    border: 1px solid #d1d5db !important; /* light gray borders for structure */
+    background-color: #fafaf9 !important; /* Extremely light gray for structure instead of pure white */
+    color: #1c1917 !important;
+    border: 1px solid #e7e5e4 !important;
+    box-shadow: none !important;
   }
 
   /* Override dark mode text colors to darker ones for paper */
@@ -55,7 +69,7 @@
   .text-stone-200,
   .text-stone-300,
   .text-stone-400 {
-    color: #111827 !important; /* dark gray */
+    color: #1c1917 !important; /* dark gray */
   }
   
   /* Strengthen colored text for contrast on white paper */
@@ -72,5 +86,37 @@
   }
   .text-red-400, .text-red-300 {
     color: #b91c1c !important; /* darker red */
+  }
+  
+  /* Clean inputs for print */
+  input[type="number"], input[type="text"], textarea, select {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    -webkit-appearance: none !important;
+    color: #000 !important;
+    font-weight: bold !important;
+  }
+  
+  /* Fix chart rendering */
+  .recharts-wrapper {
+    background-color: transparent !important;
+  }
+  .recharts-tooltip-wrapper {
+    display: none !important;
+  }
+  
+  /* Add branded header for print */
+  .lg\:col-span-8::before {
+    content: "EcoTrade Circular Business Report";
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #059669;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e7e5e4;
   }
 }

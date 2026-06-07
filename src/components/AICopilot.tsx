@@ -345,7 +345,7 @@ export default function AICopilot() {
                   </ol>
                 </div>
 
-                <div className="mt-6 bg-stone-800/80 p-5 rounded-xl border border-stone-700/80">
+                <div className="mt-6 bg-stone-800/80 p-5 rounded-xl border border-stone-700/80 print:break-inside-avoid">
                   <div className="flex justify-between items-center mb-4">
                     <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-widest flex items-center">
                       <Calculator className="w-4 h-4 mr-2" />
@@ -354,7 +354,7 @@ export default function AICopilot() {
                     {ideaResult.estimatedInitialCost.match(/\d+/) && (
                       <button
                         onClick={() => setShowScenarios(!showScenarios)}
-                        className="text-[10px] uppercase font-bold tracking-wider px-2 py-1 bg-stone-700 hover:bg-stone-600 text-stone-200 rounded-md transition-colors border border-stone-600"
+                        className="text-[10px] uppercase font-bold tracking-wider px-2 py-1 bg-stone-700 hover:bg-stone-600 text-stone-200 rounded-md transition-colors border border-stone-600 print:hidden"
                       >
                         {showScenarios ? 'Hide Scenarios' : 'Compare Scenarios'}
                       </button>
@@ -515,19 +515,19 @@ export default function AICopilot() {
                 <div>
                   <h4 className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3 break-words">Enterprise SWOT Analysis</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-emerald-950/20 border border-emerald-900 p-4 rounded-xl">
+                    <div className="bg-emerald-950/20 border border-emerald-900 p-4 rounded-xl print:break-inside-avoid">
                       <span className="text-emerald-400 font-bold text-xs uppercase block mb-2 break-words">💪 Strengths</span>
                       <p className="text-xs text-stone-300 break-words">{pitchResult.swot.strengths}</p>
                     </div>
-                    <div className="bg-red-950/20 border border-red-900 p-4 rounded-xl">
+                    <div className="bg-red-950/20 border border-red-900 p-4 rounded-xl print:break-inside-avoid">
                       <span className="text-red-400 font-bold text-xs uppercase block mb-2 break-words">⚠️ Weaknesses</span>
                       <p className="text-xs text-stone-300 break-words">{pitchResult.swot.weaknesses}</p>
                     </div>
-                    <div className="bg-teal-950/20 border border-teal-900 p-4 rounded-xl">
+                    <div className="bg-teal-950/20 border border-teal-900 p-4 rounded-xl print:break-inside-avoid">
                       <span className="text-teal-400 font-bold text-xs uppercase block mb-2 break-words">🚀 Opportunities</span>
                       <p className="text-xs text-stone-300 break-words">{pitchResult.swot.opportunities}</p>
                     </div>
-                    <div className="bg-amber-950/20 border border-amber-900 p-4 rounded-xl">
+                    <div className="bg-amber-950/20 border border-amber-900 p-4 rounded-xl print:break-inside-avoid">
                       <span className="text-amber-400 font-bold text-xs uppercase block mb-2 break-words">🛡️ Threats</span>
                       <p className="text-xs text-stone-300 break-words">{pitchResult.swot.threats}</p>
                     </div>
